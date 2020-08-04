@@ -1,6 +1,5 @@
 package PhilosopherEating3;
 
-
 public class PhilosopherEating {
     public static void main(String[] args) {
 
@@ -31,27 +30,27 @@ class ChopsticksResources {
     }
 
     //拿起筷子
-    public synchronized boolean Wait(int i,int people){
+    public synchronized void Wait(int i,int people){
         System.out.println("哲学家" + people + "准备拿起"+ i +"号筷子!");
-        if (Chopsticks[i] == false){
+        if (Chopsticks[i] == false || Chopsticks[(i + 1) % 5] == false){
             try{
-
-                System.out.println("哲学家" + people + "等待拿起"+ i +"号筷子!");
+                System.out.println("哲学家" + people + "等待拿起"+ i +"号筷子!" + "或者"+ (i + 5) % 5 +"号筷子!");
                 this.wait();
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
         }else {
-            System.out.println("哲学家" + people + "已经拿起"+ i +"号筷子!");
+            System.out.println("哲学家" + people + "已经拿起"+ i +"号筷子!" + "和"+ (i + 5) % 5 +"号筷子!");
             Chopsticks[i] = false;
+            Chopsticks[(i+1) % 5] = false;
         }
-        return false;
     }
 
     //放下筷子
     public  synchronized void  Release(int i, int people){
-        System.out.println("哲学家" + people + "释放"+ i +"号筷子!owqeiuqweiowuqioeuqiwoueqwoeuqwoeuqwioeuqwoiueoqwe");
+        System.out.println("哲学家" + people + "已经拿起"+ i +"号筷子!" + "和"+ (i + 5) % 5 +"号筷子!");
         Chopsticks[i] = true;
+        Chopsticks[(i + 1) % 5] = true;
         this.notify();
     }
 }
@@ -77,25 +76,14 @@ class eatPeople extends Thread{
         super.run();
         while (true){
             System.out.println("哲学家 " + this.i + " 正在思考!");
-            if(Resources.chopsticksResources.Wait(i,i)){
-                System.out.println("daskjdhajdhasjdhaskjdhaskjdhaskjdhsajkdhakjhdkjhasjkhdkhskjahkdha");
-                Resources.chopsticksResources.Release(i,i);
-                break;
-            }
-            if(Resources.chopsticksResources.Wait((i + 1) % 5,i)){
-                Resources.chopsticksResources.Release((i + 1) % 5,i);
-                break;
-            }
+            Resources.chopsticksResources.Wait(i,i);
             System.out.println("哲学家 " + this.i + " 正在吃饭!");
             /*try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }*/
-
-            Resources.chopsticksResources.Chopsticks[i] = true;
-            Resources.chopsticksResources.Chopsticks[(i + 1) % 5] = true;
-
+            Resources.chopsticksResources.Release(i,i);
             System.out.println("哲学家 " + this.i + " 正在思考!");
             /*try {
                 Thread.sleep(2000);
@@ -105,6 +93,5 @@ class eatPeople extends Thread{
         }
     }
 }
-
 
 
